@@ -1,0 +1,182 @@
+[
+  {
+    "title": "True or false?",
+    "questions": [
+      {
+        "question": "The elephant is the world’s largest mammal.",
+        "answer": true
+      },
+      {
+        "question": "Sea otters sometimes hold hands while they sleep.",
+        "answer": true
+      },
+      {
+        "question": "Centipedes have more legs than any other animal.",
+        "answer": true
+      },
+      {
+        "question": "Mammals and dinosaurs coexisted.",
+        "answer": true
+      },
+      {
+        "question": "Bears can’t climb trees.",
+        "answer": true
+      },
+      {
+        "question": "Camels store water in their humps.",
+        "answer": true
+      },
+      {
+        "question": "Flamingos are pink because they eat shrimp.",
+        "answer": true
+      },
+      {
+        "question": "The giant panda eats mostly bamboo.",
+        "answer": true
+      },
+      {
+        "question": "The platypus is the only mammal that lays eggs.",
+        "answer": true
+      },
+      {
+        "question": "A mule is a cross between a male donkey and a female horse.",
+        "answer": true
+      }
+    ]
+  },
+  {
+    "title": "Who was born first?",
+    "questions": [
+      {
+        "question": "Julius Caesar or Confucius.",
+        "answer": true
+      },
+      {
+        "question": "Fidel Castro or Mahatma Gandhi.",
+        "answer": true
+      },
+      {
+        "question": "Nelson Mandela or Anne Frank.",
+        "answer": true
+      },
+      {
+        "question": "Cleopatra or Muhammad.",
+        "answer": true
+      },
+      {
+        "question": "Shakespeare or Joan of Arc.",
+        "answer": true
+      },
+      {
+        "question": "Washington or Sun Tzu.",
+        "answer": true
+      },
+      {
+        "question": "Genghis Khan or da Vinci.",
+        "answer": true
+      },
+      {
+        "question": "Queen Victoria or Karl Marx.",
+        "answer": true
+      },
+      {
+        "question": "Saddam or Marilyn Monroe.",
+        "answer": true
+      },
+      {
+        "question": "Einstein or Mao Zedong.",
+        "answer": true
+      }
+    ]
+  },
+  {
+    "title": "Which had the higher population in 2019?",
+    "questions": [
+      {
+        "question": "Germany or France.",
+        "answer": true
+      },
+      {
+        "question": "Japan or South Korea.",
+        "answer": true
+      },
+      {
+        "question": "Brazil or Argentina.",
+        "answer": true
+      },
+      {
+        "question": "Egypt or Botswana.",
+        "answer": true
+      },
+      {
+        "question": "Mexico or Guatemala.",
+        "answer": true
+      },
+      {
+        "question": "Panama or Belize.",
+        "answer": true
+      },
+      {
+        "question": "Jamaica or Haiti.",
+        "answer": true
+      },
+      {
+        "question": "Greece or Norway.",
+        "answer": true
+      },
+      {
+        "question": "China or India.",
+        "answer": true
+      },
+      {
+        "question": "Iraq or Iran.",
+        "answer": true
+      }
+    ]
+  },
+  {
+    "title": "True or false?",
+    "questions": [
+      {
+        "question": "Mars has one moon just like earth. ",
+        "answer": true
+      },
+      {
+        "question": "Scurvy is caused by vitamin C deficiency. ",
+        "answer": true
+      },
+      {
+        "question": "Brass is made from iron and copper. ",
+        "answer": true
+      },
+      {
+        "question": "One tablespoon of oil has more calories than one tablespoon of butter. ",
+        "answer": true
+      },
+      {
+        "question": "Helium is the lightest element. ",
+        "answer": true
+      },
+      {
+        "question": "The common cold is caused by bacteria. ",
+        "answer": true
+      },
+      {
+        "question": "The deepest place on earth is in the pacific. ",
+        "answer": true
+      },
+      {
+        "question": "Seasons are due to elliptical orbit. ",
+        "answer": true
+      },
+      {
+        "question": "Jupiter is the largest planet in the solar system. ",
+        "answer": true
+      },
+      {
+        "question": "Atoms in a solid are more densely packed than in a gas. ",
+        "answer": true
+      }
+    ]
+  }
+]

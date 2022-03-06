@@ -3,5 +3,4 @@ import ReactDOM from 'react-dom';
 
 import App from './App.jsx';
 
-ReactDOM.render(
-    ce(React.StrictMode, null, ce(App)), document.getElementById('root'));
+ReactDOM.render(ce(React.StrictMode, null, ce(App)), document.getElementById('root'));
