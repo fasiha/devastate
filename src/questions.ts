@@ -1,6 +1,6 @@
 export interface Question {
-  question: string;
-  answer: boolean;
+  question?: string;
+  options: [string, string], answer: number;
   comment?: string;
 }
 

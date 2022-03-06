@@ -5,7 +5,12 @@ import {get, Question, QuestionBlock} from './questions';
 interface QProps {
   question: Question;
 }
-function Q({question}: QProps) { return ce('li', {}, question.question); }
+function Q({question}: QProps) {
+  let q = '';
+  if (question.question) { q = question.question + ' '; }
+  q += question.options.join(' or ') + '?';
+  return ce('li', {}, q);
+}
 
 interface BlockProps {
   block: QuestionBlock;
@@ -15,11 +20,8 @@ function Block({block}: BlockProps) {
 }
 
 function App() {
-  // Create the count state.
   const [questionBlocks, setQuestionBlocks] = useState<QuestionBlock[]|undefined>(undefined);
-  // Update the count (+1 every second).
-  useEffect(() => {get().then(x => setQuestionBlocks(x))}, []);
-  // Return the App component.
+  useEffect(() => { get().then(x => setQuestionBlocks(x)); }, []);
   if (questionBlocks) { return ce('div', null, ...questionBlocks.map(block => ce(Block, {block}))); }
   return ce('div', null, 'Waiting for data!');
 }
