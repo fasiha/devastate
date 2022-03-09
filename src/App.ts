@@ -5,29 +5,48 @@ import {useDispatch, useSelector} from 'react-redux';
 import {get, Question, QuestionBlock} from './questions';
 
 type Score = {
-  [k: string]: {result: boolean|undefined, confidence: number|undefined}
+  results: {[k: string]: {result: boolean|undefined, confidence: number|undefined}},
+  show: boolean
+};
+const initialScore: Score = {
+  results: {},
+  show: false
 };
 const CONFIDENCES = [55, 65, 75, 85, 95];
 
 const slice = createSlice({
   name: 'score',
-  initialState: {} as Score,
+  initialState: initialScore,
   reducers: {
-    append: (state, action) => {
-      return { ...state, ...action.payload }
-    },
+    append: (state, action) => ({...state, results: {...state.results, ...action.payload}}),
+    done: state => ({...state, show: true}),
+    fill: state => ({
+      ...state,
+      results:
+          Object.fromEntries(Object.keys(state.results)
+                                 .map(key => [key, {result: Math.random() < 0.5, confidence: pickrand(CONFIDENCES)}]))
+    }),
   }
 });
 export const store = configureStore({reducer: {score: slice.reducer}});
 type RootState = ReturnType<typeof store.getState>;
 const actions = slice.actions;
-const totalAnswered = (s: RootState) => Object.values(s.score).filter(x => x.result !== undefined).length;
+const totalAnswered = (s: RootState) => ({
+  total: Object.keys(s.score.results).length,
+  answered: Object.values(s.score.results).filter(x => x.result !== undefined && x.confidence !== undefined).length
+});
 
 function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
+function pickrand<T>(v: T[]): T { return v[Math.floor(Math.random() * v.length)]; }
 
 function Summary() {
-  const answered = useSelector(totalAnswered);
-  return ce('p', {}, `${answered} question(s) answered!`)
+  const {answered, total} = useSelector(totalAnswered);
+  const dispatch = useDispatch();
+  if (answered !== total) {
+    return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
+              ce('button', {onClick: () => dispatch(actions.fill())}, 'Random?'));
+  }
+  return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!'));
 }
 
 interface QProps {
@@ -36,7 +55,7 @@ interface QProps {
 function Q({question}: QProps) {
   // `unique` is a "hash" of the question, so even if somehow we rerender, it'll be the same
   const unique = hash(question);
-  const selector = useSelector<RootState, Score[string]>(s => s.score[unique]) || {};
+  const selector = useSelector<RootState, Score['results'][string]>(s => s.score.results[unique]) || {};
   const dispatch = useDispatch();
 
   const choice: number|undefined = selector.result === undefined ? undefined
