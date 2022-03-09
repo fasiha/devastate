@@ -130,20 +130,22 @@ function Q({question}: QProps) {
     // <input type="radio" id="dewey" name="drone" value="dewey">
     // <label for="dewey">Dewey</label>
     const id = radioGroup + num;
-    return [
-      ce('input', {
-        type: 'radio',
-        id,
-        name: radioGroup,
-        checked: choice === num,
-        onChange: e => {
-          if (e.target.value) {
-            dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
+    return ce(
+        'span',
+        {className: 'input-label'},
+        ce('input', {
+          type: 'radio',
+          id,
+          name: radioGroup,
+          checked: choice === num,
+          onChange: e => {
+            if (e.target.value) {
+              dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
+            }
           }
-        }
-      }),
-      ce('label', {htmlFor: id}, content)
-    ];
+        }),
+        ce('label', {htmlFor: id}, ' ' + content),
+    );
   };
   const pairs = question.options.flatMap((option, num) => makeAnswers(option, num));
 
@@ -151,20 +153,22 @@ function Q({question}: QProps) {
     const radioGroup = unique + 'conf';
     const id = radioGroup + num;
     const thisConf = CONFIDENCES[num];
-    return [
-      ce('input', {
-        type: 'radio',
-        id,
-        name: radioGroup,
-        checked: resultState.confidence === thisConf,
-        onChange: e => {
-          if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
-        }
-      }),
-      ce('label', {htmlFor: id}, content)
-    ];
+    return ce(
+        'span',
+        {className: 'input-label'},
+        ce('input', {
+          type: 'radio',
+          id,
+          name: radioGroup,
+          checked: resultState.confidence === thisConf,
+          onChange: e => {
+            if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
+          }
+        }),
+        ce('label', {htmlFor: id}, ' ' + content),
+    );
   };
-  const confidences = CONFIDENCES.flatMap((option, num) => makeConfidences(`${option}%`, num))
+  const confidences = CONFIDENCES.map((option, num) => makeConfidences(`${option}%`, num))
 
   return ce('li', {}, (question.question || '') + ' ', ...pairs, ' — confidence: ', ...confidences);
 }
