@@ -1,5 +1,6 @@
+import * as Plot from "@observablehq/plot";
 import {configureStore, createSlice} from '@reduxjs/toolkit'
-import React, {createElement as ce, useEffect, useState} from 'react';
+import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {get, Question, QuestionBlock} from './questions';
@@ -47,6 +48,21 @@ function Summary() {
 
   const dispatch = useDispatch();
 
+  const plotData: {x: number, y: number}[] = [];
+
+  useEffect(() => {
+    if (showState) {
+      const dot = Plot.dot(plotData, {x: 'x', y: 'y'});
+      const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
+      document.querySelector('#plot')?.append(Plot.plot({
+        marks: [dot, link],
+        grid: true,
+        x: {label: 'When you feel ░░% sure of your answer…'},
+        y: {label: '… you\'re right ░░% of the time '},
+      }));
+    }
+  })
+
   if (answered !== total) {
     return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
               ce('button', {onClick: () => dispatch(actions.fill())}, 'Random?'));
@@ -65,6 +81,8 @@ function Summary() {
     const total = results.length;
     const pct = (successes / total * 100).toFixed(1);
     bullets.push(`${conf}% ➜ ${pct}% = ${successes}/${total}`)
+
+    plotData.push({x: conf, y: successes / total * 100});
   }
   bullets.sort(); // confidence comes first so we can sort these lexicographically
   return ce(
