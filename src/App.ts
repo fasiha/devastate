@@ -14,6 +14,14 @@ const initialScore: Score = {
   show: false
 };
 const CONFIDENCES = [55, 65, 75, 85, 95];
+// These are my results from when I read the book :D
+const me: [boolean, number][] = [
+  [true, 95], [false, 55], [true, 65],  [true, 85], [true, 65], [true, 85], [false, 55], [true, 65],
+  [true, 55], [false, 85], [true, 95],  [true, 75], [true, 55], [true, 95], [true, 85],  [false, 95],
+  [true, 95], [true, 55],  [false, 55], [true, 75], [true, 55], [true, 85], [true, 65],  [true, 65],
+  [true, 85], [true, 55],  [true, 55],  [true, 55], [true, 95], [true, 55], [true, 95],  [true, 75],
+  [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]
+];
 
 const slice = createSlice({
   name: 'score',
@@ -23,9 +31,8 @@ const slice = createSlice({
     done: state => ({...state, show: true}),
     fill: state => ({
       ...state,
-      results:
-          Object.fromEntries(Object.keys(state.results)
-                                 .map(key => [key, {result: Math.random() < 0.5, confidence: pickrand(CONFIDENCES)}]))
+      results: Object.fromEntries(
+          Object.keys(state.results).map((key, i) => [key, {result: me[i][0], confidence: me[i][1]}]))
     }),
   }
 });
@@ -39,7 +46,6 @@ const totalAnswered = (s: RootState) => ({
 const show = (s: RootState) => s.score.show;
 
 function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
-function pickrand<T>(v: T[]): T { return v[Math.floor(Math.random() * v.length)]; }
 
 interface SummaryProps {
   detailed: boolean;
@@ -71,7 +77,7 @@ function Summary({detailed}: SummaryProps) {
 
   if (answered !== total) {
     return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
-              ce('button', {onClick: () => dispatch(actions.fill())}, 'Random?'));
+              ce('button', {onClick: () => dispatch(actions.fill())}, 'Fill?'));
   }
   if (!showState) { return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!')); }
 
