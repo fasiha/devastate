@@ -1,5 +1,8 @@
-.input-label + .input-label{
+.input-label + .input-label {
   padding-left:0.4em;
+}
+li + li {
+  padding-top: 0.4em;
 }
 
 /* Adapted from https://perfectmotherfuckingwebsite.com */

@@ -170,7 +170,8 @@ function Q({question}: QProps) {
   };
   const confidences = CONFIDENCES.map((option, num) => makeConfidences(`${option}%`, num))
 
-  return ce('li', {}, (question.question || '') + ' ', ...pairs, ' — confidence: ', ...confidences);
+  return ce('li', {}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
+            'Confidence: ', ...confidences);
 }
 
 interface BlockProps {
