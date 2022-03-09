@@ -130,22 +130,21 @@ function Q({question}: QProps) {
     // <input type="radio" id="dewey" name="drone" value="dewey">
     // <label for="dewey">Dewey</label>
     const id = radioGroup + num;
-    return ce(
-        'span',
-        {className: 'input-label'},
-        ce('input', {
-          type: 'radio',
-          id,
-          name: radioGroup,
-          checked: choice === num,
-          onChange: e => {
-            if (e.target.value) {
-              dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
-            }
-          }
-        }),
-        ce('label', {htmlFor: id}, ' ' + content),
-    );
+    return [
+      ce('label', {htmlFor: id}, ce('input', {
+           type: 'radio',
+           id,
+           name: radioGroup,
+           checked: choice === num,
+           onChange: e => {
+             if (e.target.value) {
+               dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
+             }
+           }
+         }),
+         ' ' + content),
+      ' '
+    ];
   };
   const pairs = question.options.flatMap((option, num) => makeAnswers(option, num));
 
@@ -153,22 +152,21 @@ function Q({question}: QProps) {
     const radioGroup = unique + 'conf';
     const id = radioGroup + num;
     const thisConf = CONFIDENCES[num];
-    return ce(
-        'span',
-        {className: 'input-label'},
-        ce('input', {
-          type: 'radio',
-          id,
-          name: radioGroup,
-          checked: resultState.confidence === thisConf,
-          onChange: e => {
-            if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
-          }
-        }),
-        ce('label', {htmlFor: id}, ' ' + content),
-    );
+    return [
+      ce('label', {htmlFor: id}, ce('input', {
+           type: 'radio',
+           id,
+           name: radioGroup,
+           checked: resultState.confidence === thisConf,
+           onChange: e => {
+             if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
+           }
+         }),
+         ' ' + content),
+      ' '
+    ];
   };
-  const confidences = CONFIDENCES.map((option, num) => makeConfidences(`${option}%`, num))
+  const confidences = CONFIDENCES.flatMap((option, num) => makeConfidences(`${option}%`, num))
 
   return ce('li', {}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
             'Confidence: ', ...confidences);
