@@ -9,7 +9,7 @@ export interface QuestionBlock {
   questions: Question[];
 }
 
-export const GALEF_PATH = '/galef.json';
+export const GALEF_PATH = 'galef.json';
 
 export async function get(path = GALEF_PATH): Promise<QuestionBlock[]> {
   const res = await fetch(path);
