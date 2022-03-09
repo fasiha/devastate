@@ -107,7 +107,7 @@ function Summary({detailed}: SummaryProps) {
       'div',
       {},
       ce('p', {}, 'Results!'),
-      ce('ol', {}, ...bullets.map(text => ce('li', {}, text))),
+      ce('ul', {}, ...bullets.map(text => ce('li', {}, text))),
   );
 }
 
@@ -178,7 +178,8 @@ function Q({question}: QProps) {
   const confidences = CONFIDENCES.flatMap((option, num) => makeConfidences(`${option}%`, num))
 
   const className =
-      resultState.confidence !== undefined && resultState.result !== undefined ? 'answered' : 'unanswered';
+      'question ' +
+      (resultState.confidence !== undefined && resultState.result !== undefined ? 'answered' : 'unanswered');
   return ce('li', {className}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
             'Confidence: ', ...confidences);
 }
@@ -187,7 +188,7 @@ interface BlockProps {
   block: QuestionBlock;
 }
 function Block({block}: BlockProps) {
-  return ce('div', {}, block.title, ce('ul', {}, ...block.questions.map(question => ce(Q, {question}))))
+  return ce('div', {}, block.title, ce('ol', {}, ...block.questions.map(question => ce(Q, {question}))))
 }
 
 function App() {
