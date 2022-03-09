@@ -76,8 +76,8 @@ function Summary({detailed}: SummaryProps) {
   }, [detailed, showState]);
 
   if (answered !== total) {
-    return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
-              ce('button', {onClick: () => dispatch(actions.fill())}, 'Fill?'));
+    const fill = answered === 0 ? ce('button', {onClick: () => dispatch(actions.fill())}, 'Fill?') : '';
+    return ce('p', {}, `${answered} of ${total} question(s) answered! `, fill);
   }
   if (!showState) { return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!')); }
 
