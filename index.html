@@ -4,15 +4,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Starter Snowpack App" />
-  <link rel="stylesheet" type="text/css" href="/index.css" />
-  <title>Starter Snowpack App</title>
+  <meta name="description" content="Devastate: Julia Galef's Scout Mindset-based trivia calibration" />
+  <base href="/devastate/" />
+  <link rel="stylesheet" type="text/css" href="index.css" />
+  <title>Devastate</title>
 </head>
 
 <body>
+  <p>So.</p>
+  <p><a href="https://juliagalef.com/">Julia Galef</a> has this lovely book, <em><a
+        href="https://www.penguinrandomhouse.com/books/555240/the-scout-mindset-by-julia-galef/">The Scout Mindset</a></em>, and there’s a delightful
+    game in chapter six, “How sure are you?”, where you attempt to <em>calibrate your uncertainty</em> through a quick series of trivia questions.
+    Just answer the questions below and then indicate your confidence. Per Galef:
+  <blockquote>“As you go through the list, you should notice your level of certainty fluctuating. Some questions might feel easy, and you’ll be near
+    certain of the answer. Others may prompt you to throw up your hands and say, ‘I have no idea!’ That’s perfectly fine. Remember, the goal isn’t to
+    know as much as possible. It’s to know how much you know.”</blockquote>
+  </p>
+  <p>
+    Someone with a good uncertainty calibration will miss around half of the questions they put in the “55%” uncertainty bucket while only missing one
+    out of twenty questions they put in the “95%” bucket. The scatter plot between their <em>predicted</em> versus <em>actual</em> uncertainty will
+    follow the <em>x</em>=<em>y</em> diagonal line below. When you’re done answering <em>all</em> questions, the plot will update and show you your
+    performance as well as the ninety-percentile and fifty-percentile confidence intervals. If your red dots are all within the fifty-percentile
+    confidence interval, you’re well-calibrated!
+
+  <details>
+    <summary>Further reading…</summary>
+    <blockquote>
+      <p>
+        After reading Galef’s 2021 book, check out (a) Philip Tetlock and Dan Gardner’s <em><a
+            href="https://www.goodreads.com/book/show/23995360-superforecasting">Superforecasting</a></em> (2015) for more on calibrating predictions
+        in general (which include uncertainty of course), and (b) Duncan Watts’ <em><a
+            href="https://www.goodreads.com/book/show/9206187-everything-is-obvious">Everything is Obvious (Once You Know the Answer)</a></em> (2011)
+        for the big picture on the limits to what you can know.
+      </p>
+      <p>
+        And if you’re a developer (one of us!), you might be interested in this little app’s <a href="https://github.com/fasiha/devastate">source
+          code</a>.
+      </p>
+    </blockquote>
+  </details>
+  </p>
   <div id="plot"></div>
   <div id="root"></div>
-  <script type="module" src="/dist/index.js"></script>
+  <script type="module" src="dist/index.js"></script>
 </body>
 
 </html>
