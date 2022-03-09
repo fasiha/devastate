@@ -17,7 +17,7 @@ const CONFIDENCES = [55, 65, 75, 85, 95];
 // These are my results from when I read the book :D
 const me: [boolean, number][] = [
   [true, 95], [false, 55], [true, 65],  [true, 85], [true, 65], [true, 85], [false, 55], [true, 65],
-  [true, 55], [false, 85], [true, 95],  [true, 75], [true, 55], [true, 95], [true, 85],  [false, 95],
+  [true, 55], [false, 85], [true, 95],  [true, 75], [true, 55], [true, 95], [true, 85],  [true, 95],
   [true, 95], [true, 55],  [false, 55], [true, 75], [true, 55], [true, 85], [true, 65],  [true, 65],
   [true, 85], [true, 55],  [true, 55],  [true, 55], [true, 95], [true, 55], [true, 95],  [true, 75],
   [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]

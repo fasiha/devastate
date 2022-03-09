@@ -1,24 +1,28 @@
-# New Project
+# Devastate
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+Calibrate your uncertainty at https://fasiha.github.io/devastate/
 
-## Available Scripts
+Check out my predicted-vs-actual plot and tell me how to be more risk-on:
 
-### npm start
+![My results](./me.png)
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+- 55% ➜ 75.0% = 9/12
+- 65% ➜ 100.0% = 6/6
+- 75% ➜ 100.0% = 4/4
+- 85% ➜ 87.5% = 7/8
+- 95% ➜ 100.0% = 10/10
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+## Tech
+- TypeScript
+- React, Redux, Redux Toolkit
+- Plots via [ObservableHQ's Plot](https://observablehq.com/@observablehq/plot) (same folks that made D3)
+- Snowpack; Create Snowpack App
+- CSS adapted from https://perfectmotherfuckingwebsite.com/
 
-### npm run build
+## Name
+> Ay imma celebrate  
+> Had a good year, need to calibrate  
+> For you slow h—s imma paraphrase  
+> I’m a heavyweight, bitch I devastate them
 
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
-
-**For the best production performance:** Add a build bundler plugin like [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) or [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle) to your `snowpack.config.mjs` config file.
-
-### Q: What about Eject?
-
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+—Awkwafina, [*Pockiez*](https://www.youtube.com/watch?v=YsSre22qito)
