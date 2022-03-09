@@ -35,18 +35,44 @@ const totalAnswered = (s: RootState) => ({
   total: Object.keys(s.score.results).length,
   answered: Object.values(s.score.results).filter(x => x.result !== undefined && x.confidence !== undefined).length
 });
+const show = (s: RootState) => s.score.show;
 
 function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
 function pickrand<T>(v: T[]): T { return v[Math.floor(Math.random() * v.length)]; }
 
 function Summary() {
   const {answered, total} = useSelector(totalAnswered);
+  const showState = useSelector(show);
+  const resultState = useSelector((s: RootState) => s.score.results);
+
   const dispatch = useDispatch();
+
   if (answered !== total) {
     return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
               ce('button', {onClick: () => dispatch(actions.fill())}, 'Random?'));
   }
-  return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!'));
+  if (!showState) { return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!')); }
+
+  const buckets: Map<number, boolean[]> = new Map();
+  for (const {result, confidence} of Object.values(resultState)) {
+    const c = confidence ?? -1; // TypeScript pacification
+    const r = !!result;         // TypeScript pacification
+    buckets.set(c, (buckets.get(c) || []).concat(r))
+  }
+  const bullets: string[] = [];
+  for (const [conf, results] of buckets) {
+    const successes = results.reduce((p, c) => p + Number(c), 0);
+    const total = results.length;
+    const pct = (successes / total * 100).toFixed(1);
+    bullets.push(`${conf}% ➜ ${pct}% = ${successes}/${total}`)
+  }
+  bullets.sort(); // confidence comes first so we can sort these lexicographically
+  return ce(
+      'div',
+      {},
+      ce('p', {}, 'Results!'),
+      ce('ol', {}, ...bullets.map(text => ce('li', {}, text))),
+  );
 }
 
 interface QProps {
@@ -55,12 +81,21 @@ interface QProps {
 function Q({question}: QProps) {
   // `unique` is a "hash" of the question, so even if somehow we rerender, it'll be the same
   const unique = hash(question);
-  const selector = useSelector<RootState, Score['results'][string]>(s => s.score.results[unique]) || {};
+  const resultState = useSelector((s: RootState) => s.score.results[unique]) || {};
+  const showState = useSelector(show);
   const dispatch = useDispatch();
 
-  const choice: number|undefined = selector.result === undefined ? undefined
-                                   : selector.result             ? question.answer
-                                                                 : Number(!question.answer);
+  const choice: number|undefined = resultState.result === undefined ? undefined
+                                   : resultState.result             ? question.answer
+                                                                    : Number(!question.answer);
+
+  if (showState && choice !== undefined) {
+    const options = question.options.join(' or ');
+    const summary = `${question.question || ''} ${options}. You said ${question.options[choice]}. `;
+    const result = `${resultState.result ? '✅' : '❌'}!`;
+    const comment = question.comment ? ` ${question.comment}` : '';
+    return ce('li', {}, summary, result, comment);
+  }
 
   function makeAnswers(content: string, num: number) {
     const radioGroup = unique + 'question';
@@ -74,7 +109,9 @@ function Q({question}: QProps) {
         name: radioGroup,
         checked: choice === num,
         onChange: e => {
-          if (e.target.value) { dispatch(actions.append({[unique]: {...selector, result: num === question.answer}})); }
+          if (e.target.value) {
+            dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
+          }
         }
       }),
       ce('label', {htmlFor: id}, content)
@@ -91,9 +128,9 @@ function Q({question}: QProps) {
         type: 'radio',
         id,
         name: radioGroup,
-        checked: selector.confidence === thisConf,
+        checked: resultState.confidence === thisConf,
         onChange: e => {
-          if (e.target.value) { dispatch(actions.append({[unique]: {...selector, confidence: thisConf}})); }
+          if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
         }
       }),
       ce('label', {htmlFor: id}, content)
