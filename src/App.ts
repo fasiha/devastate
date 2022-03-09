@@ -44,6 +44,10 @@ const totalAnswered = (s: RootState) => ({
   answered: Object.values(s.score.results).filter(x => x.result !== undefined && x.confidence !== undefined).length
 });
 const show = (s: RootState) => s.score.show;
+const almostDone = (s: RootState) => {
+  const {total, answered} = totalAnswered(s);
+  return total - answered <= 3;
+};
 
 function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
 
@@ -173,7 +177,9 @@ function Q({question}: QProps) {
   };
   const confidences = CONFIDENCES.flatMap((option, num) => makeConfidences(`${option}%`, num))
 
-  return ce('li', {}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
+  const className =
+      resultState.confidence !== undefined && resultState.result !== undefined ? 'answered' : 'unanswered';
+  return ce('li', {className}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
             'Confidence: ', ...confidences);
 }
 
@@ -186,21 +192,18 @@ function Block({block}: BlockProps) {
 
 function App() {
   const [questionBlocks, setQuestionBlocks] = useState<QuestionBlock[]|undefined>(undefined);
+  const almost = useSelector(almostDone);
   const dispatch = useDispatch();
   useEffect(() => {
     get().then(list => {
       setQuestionBlocks(list);
-      for (const b of list) {
-        for (const q of b.questions) {
-          dispatch(actions.append({[hash(q)]: {result: undefined, confidence: undefined}}));
-        }
-      }
+      dispatch(actions.append(Object.fromEntries(list.flatMap(l => l.questions.map(q => [hash(q), {}])))))
     });
   }, []);
   if (questionBlocks) {
     return ce(
         'div',
-        null,
+        {className: almost ? 'almost-done' : undefined},
         ce(Summary, {detailed: true}),
         ...questionBlocks.map(block => ce(Block, {block})),
         ce(Summary, {detailed: false}),

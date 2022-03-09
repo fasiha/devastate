@@ -8,6 +8,15 @@ li + li {
   padding-top: 0.4em;
 }
 
+.almost-done li.unanswered {
+  animation: pulse 3s infinite;
+}
+@keyframes pulse {
+  0% { background-color: none; }
+  50% { background-color: #8b000040; }
+  100% { background-color: none; }
+}
+
 /* Adapted from https://perfectmotherfuckingwebsite.com */
 body {
   overflow-wrap: break-word;
