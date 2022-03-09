@@ -87,18 +87,22 @@ function Summary({detailed}: SummaryProps) {
 
   if (!detailed) { return ce('p'); }
 
-  const buckets: Map<number, boolean[]> = new Map();
-  for (const {result, confidence} of Object.values(resultState)) {
+  const buckets: Map<number, {result: boolean, idx: number}[]> = new Map();
+  for (const [idx, {result, confidence}] of Object.values(resultState).entries()) {
     const c = confidence ?? -1; // TypeScript pacification
     const r = !!result;         // TypeScript pacification
-    buckets.set(c, (buckets.get(c) || []).concat(r))
+    buckets.set(c, (buckets.get(c) || []).concat({result: r, idx}))
   }
   const bullets: string[] = [];
   for (const [conf, results] of buckets) {
-    const successes = results.reduce((p, c) => p + Number(c), 0);
+    const successes = results.reduce((p, c) => p + Number(c.result), 0);
     const total = results.length;
     const pct = (successes / total * 100).toFixed(1);
-    bullets.push(`${conf}% ➜ ${pct}% = ${successes}/${total}`)
+    const rightIdxs: number[] = [];
+    const wrongIdxs: number[] = [];
+    for (const {result, idx} of results) { (result ? rightIdxs : wrongIdxs).push(idx + 1); }
+    bullets.push(
+        `${conf}% ➜ ${pct}% = ${successes}/${total}: [${rightIdxs.join(' ')}] right vs [${wrongIdxs.join(' ')}] wrong`);
 
     plotData.push({x: conf, y: successes / total * 100});
   }
