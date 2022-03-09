@@ -24,5 +24,6 @@ export default {
   },
   buildOptions: {
     /* ... */
+    baseUrl: '/devastate'
   },
 };
