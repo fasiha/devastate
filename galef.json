@@ -1,0 +1,353 @@
+[
+  {
+    "title": "True or false?",
+    "questions": [
+      {
+        "question": "The elephant is the world’s largest mammal.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "The blue whale is."
+      },
+      {
+        "question": "Sea otters sometimes hold hands while they sleep.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Centipedes have more legs than any other animal.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "Millipedes can have more."
+      },
+      {
+        "question": "Mammals and dinosaurs coexisted.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0,
+        "comment": "Mammals have been around for 200 million years. The dinosaurs went extinct 65 million years ago.."
+      },
+      {
+        "question": "Bears can’t climb trees.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Camels store water in their humps.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "It's fat."
+      },
+      {
+        "question": "Flamingos are pink because they eat shrimp.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "The giant panda eats mostly bamboo.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "The platypus is the only mammal that lays eggs.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "The echidna is the other."
+      },
+      {
+        "question": "A mule is a cross between a male donkey and a female horse.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      }
+    ]
+  },
+  {
+    "title": "Who was born first?",
+    "questions": [
+      {
+        "options": [
+          "Julius Caesar",
+          "Confucius"
+        ],
+        "answer": 1,
+        "comment": "Confucius was born in 550 BCE while Julius Caesar was born in 100 BCE."
+      },
+      {
+        "options": [
+          "Fidel Castro",
+          "Mahatma Gandhi"
+        ],
+        "answer": 1,
+        "comment": "Gandhi was born in 1869 while Fidel was born in 1926."
+      },
+      {
+        "options": [
+          "Nelson Mandela",
+          "Anne Frank"
+        ],
+        "answer": 0,
+        "comment": "Mandela was born in 1918 while Anne Frank was born in 1929."
+      },
+      {
+        "options": [
+          "Cleopatra",
+          "Muhammad"
+        ],
+        "answer": 0,
+        "comment": "Cleopatra was born in 69 BCE while Muhammad was born circa 570 CE."
+      },
+      {
+        "options": [
+          "Shakespeare",
+          "Joan of Arc"
+        ],
+        "answer": 1,
+        "comment": "Joan of Arc was born circa 1412 while Shakespeare was born in 1564."
+      },
+      {
+        "options": [
+          "George Washington",
+          "Sun Tzu"
+        ],
+        "answer": 0,
+        "comment": "Sun Tzu was born in 544 BCE while Washington was born in 1732 CE."
+      },
+      {
+        "options": [
+          "Genghis Khan",
+          "Leonardo da Vinci"
+        ],
+        "answer": 0,
+        "comment": "Genghis Khan was born circa 1160 while da Vinci was born in 1452."
+      },
+      {
+        "options": [
+          "Queen Victoria",
+          "Karl Marx"
+        ],
+        "answer": 1,
+        "comment": "Marx was born in 1818 while Queen Victoria was born in 1819."
+      },
+      {
+        "options": [
+          "Saddam Hussein",
+          "Marilyn Monroe"
+        ],
+        "answer": 1,
+        "comment": "Marilyn Monroe was born in 1926 while Saddam Hussein was born in 1937."
+      },
+      {
+        "options": [
+          "Albert Einstein",
+          "Mao Zedong"
+        ],
+        "answer": 0,
+        "comment": "Einstein was born in 1879 while Mao was born in 1893."
+      }
+    ]
+  },
+  {
+    "title": "Which had the higher population in 2019?",
+    "questions": [
+      {
+        "options": [
+          "Germany",
+          "France"
+        ],
+        "answer": 0,
+        "comment": "Germany had 84 million while France had 65 million."
+      },
+      {
+        "options": [
+          "Japan",
+          "South Korea"
+        ],
+        "answer": 0,
+        "comment": "Japan had 127 million while South Korea had 51 million."
+      },
+      {
+        "options": [
+          "Brazil",
+          "Argentina"
+        ],
+        "answer": 0,
+        "comment": "Brazil had 211 million while Argentina had 45 million."
+      },
+      {
+        "options": [
+          "Egypt",
+          "Botswana"
+        ],
+        "answer": 0,
+        "comment": "Egypt had 100 million while Botswana had 2 million."
+      },
+      {
+        "options": [
+          "Mexico",
+          "Guatemala"
+        ],
+        "answer": 0,
+        "comment": "Mexico had 128 million while Guatemala had 18 million."
+      },
+      {
+        "options": [
+          "Panama",
+          "Belize"
+        ],
+        "answer": 0,
+        "comment": "Panama had 4 million while Belize had 390 thousand."
+      },
+      {
+        "options": [
+          "Jamaica",
+          "Haiti"
+        ],
+        "answer": 1,
+        "comment": "Haiti had 11 million while Jamaica had 3 million."
+      },
+      {
+        "options": [
+          "Greece",
+          "Norway"
+        ],
+        "answer": 0,
+        "comment": "Greece had 10 million while Norway had 5 million."
+      },
+      {
+        "options": [
+          "China",
+          "India"
+        ],
+        "answer": 0,
+        "comment": "China had 1.43 billion while India had 1.37 billion."
+      },
+      {
+        "options": [
+          "Iraq",
+          "Iran"
+        ],
+        "answer": 1,
+        "comment": "Iran had 83 million while Iraq had 39 million."
+      }
+    ]
+  },
+  {
+    "title": "True or false?",
+    "questions": [
+      {
+        "question": "Mars has one moon just like earth.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "Mars has two moons."
+      },
+      {
+        "question": "Scurvy is caused by vitamin C deficiency.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Brass is made from iron and copper.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "Zinc and copper."
+      },
+      {
+        "question": "One tablespoon of oil has more calories than one tablespoon of butter.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0,
+        "comment": "A tablespoon of oil has 120 calories while a tablespoon of butter has 110."
+      },
+      {
+        "question": "Helium is the lightest element.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "Hydrogen."
+      },
+      {
+        "question": "The common cold is caused by bacteria.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "Viruses."
+      },
+      {
+        "question": "The deepest place on Earth is in the Pacific.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Seasons are caused by the Earth's elliptical orbit around the Sun.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "comment": "They're because the earth's axis has a tilt."
+      },
+      {
+        "question": "Jupiter is the largest planet in our solar system.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Atoms in a solid are more densely packed than in a gas.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "answer": 0
+      }
+    ]
+  }
+]
