@@ -54,22 +54,20 @@ function Summary({detailed}: SummaryProps) {
   const plotData: {x: number, y: number}[] = [];
 
   useEffect(() => {
-    if (showState) {
-      if (detailed) {
-        const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
-        const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
-        document.querySelector('#plot')?.append(Plot.plot({
-          marks: [dot, link],
-          grid: true,
-          x: {label: 'When you feel ░░% sure of your answer…'},
-          y: {label: '… you\'re right ░░% of the time '},
-          style: {background: "black", color: "white"},
-        }));
-      } else {
-        window.scrollTo({top: document.querySelector('#plot')?.scrollTop ?? 0, left: 0, behavior: 'smooth'});
-      }
+    if (detailed) {
+      const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
+      const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
+      document.querySelector('#plot')?.replaceChildren(Plot.plot({
+        marks: [dot, link],
+        grid: true,
+        x: {label: 'When you feel ░░% sure of your answer…', ticks: CONFIDENCES},
+        y: {label: '… you\'re right ░░% of the time '},
+        style: {background: "black", color: "white"},
+      }));
+    } else if (showState) {
+      document.querySelector('#plot')?.scrollIntoView({behavior: 'smooth'});
     }
-  });
+  }, [detailed, showState]);
 
   if (answered !== total) {
     return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',

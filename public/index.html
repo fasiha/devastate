@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Devastate: Julia Galef-inspired Scout Mindset-based trivia calibration" />
+  <meta name="description" content="Devastate: Julia Galef's Scout Mindset-based trivia calibration" />
   <base href="%PUBLIC_URL%" />
   <link rel="stylesheet" type="text/css" href="index.css" />
   <title>Devastate</title>
@@ -20,7 +20,12 @@
     certain of the answer. Others may prompt you to throw up your hands and say, ‘I have no idea!’ That’s perfectly fine. Remember, the goal isn’t to
     know as much as possible. It’s to know how much you know.”</blockquote>
   </p>
-  <hr>
+  <p>
+    Someone with a good uncertainty calibration will miss around half of the questions they put in the “55%” uncertainty bucket while only missing one
+    out of twenty questions they put in the “95%” bucket. The scatter plot between their <em>predicted</em> versus <em>actual</em> uncertainty will
+    closely follow the <em>x</em>=<em>y</em> diagonal line below. When you’re done answering <em>all</em> questions, check the plot to measure your
+    uncertainty calibration.
+  </p>
   <div id="plot"></div>
   <div id="root"></div>
   <script type="module" src="dist/index.js"></script>
