@@ -123,7 +123,8 @@ function Q({question}: QProps) {
 
   if (showState && choice !== undefined) {
     const options = question.options.join(' or ');
-    const summary = `${question.question || ''} ${options}. You said ${question.options[choice]}. `;
+    const summary =
+        `${question.question || ''} ${options}. You said ${question.options[choice]}, ${resultState.confidence}%. `;
     const result = `${resultState.result ? '✅' : '❌'}!`;
     const comment = question.comment ? ` ${question.comment}` : '';
     return ce('li', {}, summary, result, comment);
