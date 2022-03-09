@@ -41,7 +41,10 @@ const show = (s: RootState) => s.score.show;
 function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
 function pickrand<T>(v: T[]): T { return v[Math.floor(Math.random() * v.length)]; }
 
-function Summary() {
+interface SummaryProps {
+  detailed: boolean;
+}
+function Summary({detailed}: SummaryProps) {
   const {answered, total} = useSelector(totalAnswered);
   const showState = useSelector(show);
   const resultState = useSelector((s: RootState) => s.score.results);
@@ -52,23 +55,29 @@ function Summary() {
 
   useEffect(() => {
     if (showState) {
-      const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
-      const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
-      document.querySelector('#plot')?.append(Plot.plot({
-        marks: [dot, link],
-        grid: true,
-        x: {label: 'When you feel ░░% sure of your answer…'},
-        y: {label: '… you\'re right ░░% of the time '},
-        style: {background: "black", color: "white"},
-      }));
+      if (detailed) {
+        const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
+        const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
+        document.querySelector('#plot')?.append(Plot.plot({
+          marks: [dot, link],
+          grid: true,
+          x: {label: 'When you feel ░░% sure of your answer…'},
+          y: {label: '… you\'re right ░░% of the time '},
+          style: {background: "black", color: "white"},
+        }));
+      } else {
+        window.scrollTo({top: document.querySelector('#plot')?.scrollTop ?? 0, left: 0, behavior: 'smooth'});
+      }
     }
-  })
+  });
 
   if (answered !== total) {
     return ce('p', {}, `${answered} of ${total} question(s) answered!`, ' ',
               ce('button', {onClick: () => dispatch(actions.fill())}, 'Random?'));
   }
   if (!showState) { return ce('p', {}, ce('button', {onClick: () => dispatch(actions.done())}, 'Show results?!')); }
+
+  if (!detailed) { return ce('p'); }
 
   const buckets: Map<number, boolean[]> = new Map();
   for (const {result, confidence} of Object.values(resultState)) {
@@ -180,7 +189,15 @@ function App() {
       }
     });
   }, []);
-  if (questionBlocks) { return ce('div', null, ce(Summary), ...questionBlocks.map(block => ce(Block, {block}))); }
+  if (questionBlocks) {
+    return ce(
+        'div',
+        null,
+        ce(Summary, {detailed: true}),
+        ...questionBlocks.map(block => ce(Block, {block})),
+        ce(Summary, {detailed: false}),
+    );
+  }
   return ce('div', null, 'Waiting for data!');
 }
 
