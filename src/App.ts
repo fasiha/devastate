@@ -52,13 +52,14 @@ function Summary() {
 
   useEffect(() => {
     if (showState) {
-      const dot = Plot.dot(plotData, {x: 'x', y: 'y'});
+      const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
       const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
       document.querySelector('#plot')?.append(Plot.plot({
         marks: [dot, link],
         grid: true,
         x: {label: 'When you feel ░░% sure of your answer…'},
         y: {label: '… you\'re right ░░% of the time '},
+        style: {background: "black", color: "white"},
       }));
     }
   })
