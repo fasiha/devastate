@@ -135,7 +135,7 @@ function Q({question}: QProps) {
         `${question.question || ''} ${options}. You said ${question.options[choice]}, ${resultState.confidence}%. `;
     const result = `${resultState.result ? '✅' : '❌'}!`;
     const comment = question.comment ? ` ${question.comment}` : '';
-    return ce('li', {}, summary, result, comment);
+    return ce('li', {className: 'question'}, summary, result, comment);
   }
 
   function makeAnswers(content: string, num: number) {
