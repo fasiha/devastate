@@ -1,13 +1,3 @@
-:root {
-  counter-reset: question;
-}
-ol li.question {
-  counter-increment: question;
-}
-ol li.question::marker {
-  content: counter(question) ". ";
-}
-
 label + label {
   padding-left:0.4em;
 }

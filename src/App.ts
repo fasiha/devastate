@@ -135,7 +135,7 @@ function Q({question}: QProps) {
         `${question.question || ''} ${options}. You said ${question.options[choice]}, ${resultState.confidence}%. `;
     const result = `${resultState.result ? '✅' : '❌'}!`;
     const comment = question.comment ? ` ${question.comment}` : '';
-    return ce('li', {className: 'question'}, summary, result, comment);
+    return ce('li', {className: 'question', value: question.idx}, summary, result, comment);
   }
 
   function makeAnswers(content: string, num: number) {
@@ -184,8 +184,8 @@ function Q({question}: QProps) {
   const className =
       'question ' +
       (resultState.confidence !== undefined && resultState.result !== undefined ? 'answered' : 'unanswered');
-  return ce('li', {className}, ...(question.question ? [question.question, ce('br')] : ['']), ...pairs, ce('br'),
-            'Confidence: ', ...confidences);
+  return ce('li', {className, value: question.idx}, ...(question.question ? [question.question, ce('br')] : ['']),
+            ...pairs, ce('br'), 'Confidence: ', ...confidences);
 }
 
 interface BlockProps {
