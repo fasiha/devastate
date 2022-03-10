@@ -12,9 +12,9 @@ li + li {
   animation: pulse 3s infinite;
 }
 @keyframes pulse {
-  0% { background-color: none; }
-  50% { background-color: #8b000040; }
-  100% { background-color: none; }
+  0% { background-color: #200; }
+  50% { background-color: #400; }
+  100% { background-color: #200; }
 }
 
 /* Adapted from https://perfectmotherfuckingwebsite.com */
