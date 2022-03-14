@@ -1,10 +1,13 @@
 import * as Plot from "@observablehq/plot";
-import {configureStore, createSlice} from '@reduxjs/toolkit'
+import {configureStore, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {get, Question, QuestionBlock} from './questions';
+import {get, hash, Question, QuestionBlock} from './questions';
 
+/*
+Business logic types and data
+*/
 type Score = {
   results: {[k: string]: {result: boolean|undefined, confidence: number|undefined}},
   show: boolean
@@ -23,11 +26,15 @@ const me: [boolean, number][] = [
   [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]
 ];
 
+/*
+Redux! App state.
+*/
 const slice = createSlice({
   name: 'score',
   initialState: initialScore,
   reducers: {
-    append: (state, action) => ({...state, results: {...state.results, ...action.payload}}),
+    append: (state, action: PayloadAction<Score['results']>) =>
+        ({...state, results: {...state.results, ...action.payload}}),
     done: state => ({...state, show: true}),
     fill: state => ({
       ...state,
@@ -38,7 +45,9 @@ const slice = createSlice({
 });
 export const store = configureStore({reducer: {score: slice.reducer}});
 type RootState = ReturnType<typeof store.getState>;
+const useAppDispatch = () => useDispatch<typeof store.dispatch>();
 const actions = slice.actions;
+// Reusable selectors
 const totalAnswered = (s: RootState) => ({
   total: Object.keys(s.score.results).length,
   answered: Object.values(s.score.results).filter(x => x.result !== undefined && x.confidence !== undefined).length
@@ -49,8 +58,9 @@ const almostDone = (s: RootState) => {
   return total - answered <= 3;
 };
 
-function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
-
+/*
+React components!
+*/
 interface SummaryProps {
   detailed: boolean;
 }
@@ -59,7 +69,7 @@ function Summary({detailed}: SummaryProps) {
   const showState = useSelector(show);
   const resultState = useSelector((s: RootState) => s.score.results);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const plotData: {x: number, y: number}[] = [];
 
@@ -123,7 +133,7 @@ function Q({question}: QProps) {
   const unique = hash(question);
   const resultState = useSelector((s: RootState) => s.score.results[unique]) || {};
   const showState = useSelector(show);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const choice: number|undefined = resultState.result === undefined ? undefined
                                    : resultState.result             ? question.answer
@@ -198,11 +208,12 @@ function Block({block}: BlockProps) {
 function App() {
   const [questionBlocks, setQuestionBlocks] = useState<QuestionBlock[]|undefined>(undefined);
   const almost = useSelector(almostDone);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   useEffect(() => {
     get().then(list => {
       setQuestionBlocks(list);
-      dispatch(actions.append(Object.fromEntries(list.flatMap(l => l.questions.map(q => [hash(q), {}])))))
+      dispatch(actions.append(Object.fromEntries(
+          list.flatMap(l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined}])))))
     });
   }, []);
   if (questionBlocks) {

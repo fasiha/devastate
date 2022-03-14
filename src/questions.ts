@@ -26,3 +26,8 @@ export async function get(path = GALEF_PATH): Promise<QuestionBlock[]> {
   // TODO report this gracefully
   throw new Error(`error: ${res.status} ${res.statusText}`);
 }
+
+/**
+ * Convert a `Question` to a unique ID.
+ */
+export function hash(question: Question): string { return (question.question || '') + question.options.join(''); }
