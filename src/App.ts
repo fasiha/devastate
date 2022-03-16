@@ -3,6 +3,7 @@ import {configureStore, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import {lngamma} from './gamma';
 import {get, hash, Question, QuestionBlock} from './questions';
 
 /*
@@ -25,6 +26,20 @@ const me: [boolean, number][] = [
   [true, 85], [true, 55],  [true, 55],  [true, 55], [true, 95], [true, 55], [true, 95],  [true, 75],
   [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]
 ];
+
+// Binomial random variable helper functions
+function lnnchoosek(x: number, y: number) { return lngamma(x + 1) - lngamma(y + 1) - lngamma(x - y + 1); }
+function binomProb(k: number, n: number, p: number) {
+  if (k < 0 || k > n || n < 0 || p < 0 || p > 1) {
+    console.error({k, n, p});
+    throw new Error('invalid binomial distribution parameters')
+  }
+  return Math.exp(lnnchoosek(n, k)) * p ** k * (1 - p) ** (n - k);
+}
+function linspace(min: number, max: number, steps: number): number[] {
+  const delta = (max - min) / (steps - 1);
+  return Array.from(Array(steps), (_, n) => min + n * delta);
+}
 
 /*
 Redux! App state.
@@ -71,18 +86,35 @@ function Summary({detailed}: SummaryProps) {
 
   const dispatch = useAppDispatch();
 
-  const plotData: {x: number, y: number}[] = [];
+  const plotData: {x: number, y: number, successes: number, total: number}[] = [];
 
   useEffect(() => {
     if (detailed) {
+      const binoms: {x: number, y: number, prob: number}[] = [];
+      const empiricalPs = linspace(0.5, 1, 21); // this is `k/n` we want to support
+      for (const {total: n, x: p} of plotData) {
+        const sub: typeof binoms = [];
+        for (const empP of empiricalPs) {
+          const k = empP * n;
+          const prob = binomProb(k, n, p / 100);
+          sub.push({x: p, y: empP * 100, prob});
+        }
+        // rescale
+        const max = Math.max(...sub.map(o => o.prob));
+        binoms.push(...sub.map(o => ({...o, prob: o.prob / max})));
+      }
+
+      const prob = Plot.dot(binoms, {x: 'x', y: 'y', fill: 'prob', r: 'prob'});
       const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
       const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
       document.querySelector('#plot')?.replaceChildren(Plot.plot({
-        marks: [dot, link],
+        marks: [prob, dot, link],
         grid: true,
         x: {label: 'When you feel ░░% sure of your answer…', ticks: CONFIDENCES},
         y: {label: '… you\'re right ░░% of the time '},
         style: {background: "black", color: "white"},
+        r: {type: "linear", domain: [0, 1], range: [0, 10]},
+        color: {type: 'linear', range: ["black", "white"], interpolate: "rgb"},
       }));
     } else if (showState) {
       document.querySelector('#plot')?.scrollIntoView({behavior: 'smooth'});
@@ -114,7 +146,7 @@ function Summary({detailed}: SummaryProps) {
     bullets.push(
         `${conf}% ➜ ${pct}% = ${successes}/${total}: [${rightIdxs.join(' ')}] right vs [${wrongIdxs.join(' ')}] wrong`);
 
-    plotData.push({x: conf, y: successes / total * 100});
+    plotData.push({x: conf, y: successes / total * 100, successes, total});
   }
   bullets.sort(); // confidence comes first so we can sort these lexicographically
   return ce(
