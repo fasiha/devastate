@@ -1,6 +1,7 @@
 # semi-related but different distribution? https://rdrr.io/cran/cbinom/man/cbinom.html
 
 # You'll need scipy and numpy to run this
+from fractions import Fraction
 from scipy.stats import binom as binomrv
 from scipy.special import binom as binomcoef, betaln
 from scipy.interpolate import interp1d
@@ -37,43 +38,65 @@ n, p = 2, 0.55
 n, p = 15, 0.55
 viz = False
 
-ks = np.linspace(0, n + 1, 20)
-
 if viz:
+  ks = np.linspace(0, n + 1, 20)
   plt.figure()
   [plt.plot(np.linspace(0, n + 1), pmf(np.linspace(0, n + 1), n, p)) for n in range(2, 10)]
 
-tops = np.linspace(0, n + 1, 20)
-denominator = mp.quad(lambda k: mppmf(k, n, p), [0.0, n + 1])
-cdfs = np.array([mp.quad(lambda k: mppmf(k, n, p), [0.0, top]) for top in tops]) / denominator
-pmfs = [mppmf(top, n, p) / denominator for top in tops]
-([f'k/n={x}, pmf={w}, cdf={y}, 1-cdf={z}' for x, y, z, w in zip(*[tops / n, cdfs, 1 - cdfs, pmfs])])
 
-lookup_n_p = dict()
-for n in tqdm.tqdm(range(1, 41)):
-  tops = np.linspace(0, n + 1, 20)
-  for p in [0.55, 0.65, 0.75, 0.85, 0.95]:
-    if (n, p) not in lookup_n_p:
-      denominator = mp.quad(lambda k: mppmf(k, n, p), [0.0, n + 1])
-      cdfs = np.array([mp.quad(lambda k: mppmf(k, n, p), [0.0, top]) for top in tops]) / denominator
-      lookup_n_p[(n, p)] = (interp1d(cdfs, tops), denominator, tops, cdfs)
-
-f = lambda top: mp.quad(lambda k: mppmf(k, n, p), [0.0, top])
-mp.findroot(lambda x: f(x) - 0.95, (n + 1) * 0.95)
+def ppf(q, n, p, den, init, tol=1e-4):
+  f = lambda top: mp.quad(lambda k: mppmf(k, n, p), [0.0, top])
+  return mp.findroot(lambda x: f(x) - q * den, float(init), tol=tol)
 
 
-def ppf(q, n, p):
-  interpolator, den, *_ = lookup_n_p[(n, p)]
-  f = lambda top: mp.quad(lambda k: mppmf(k, n, p) / den, [0.0, top])
-  return mp.findroot(lambda x: f(x) - q, float(interpolator(q)), tol=1e-4)
+def maybeFloatInt(x: float | int | Fraction) -> int | float:
+  "Returns input if it's truly float, else an int"
+  return int(x) if int(x) == x else float(x)
+
+
+def confIntervalsToQuantiles(qs: list[int]) -> list[float | int]:
+  "Given confidence intervals, e.g., [0.99, 0.9], generate min/max quantiles"
+  ret: list[int | float] = []
+  for q in qs:
+    assert 0 < q < 100
+    ret.append(maybeFloatInt(Fraction(100 + q, 2)))
+    ret.append(maybeFloatInt(Fraction(100 - q, 2)))
+  return ret
 
 
 lookup_npq = dict()
-for n in tqdm.tqdm(range(1, 40 + 1)):
-  for p in [0.55, 0.65, 0.75, 0.85, 0.95]:
-    for q in [0.05, 0.95, 0.25, 0.75, 0.45, 0.55]:
-      if (n, p, q) not in lookup_npq:
-        lookup_npq[(n, p, q)] = float(ppf(q, n, p))
+# try to rehydrate this object from disk
+try:
 
-with open('npq.pydat', 'w') as fid:
-  fid.write(str(lookup_npq))
+  def object_hook(d):
+    return {maybeFloatInt(float(key)): d[key] for key in d}
+
+  with open('npq.json', 'r') as fid:
+    lookup_npq = json.load(fid, object_hook=object_hook)
+except FileNotFoundError:
+  pass
+
+for n in tqdm.tqdm(range(1, 41)):
+  # this is the number of questions in a given confidence
+  if n not in lookup_npq:
+    lookup_npq[n] = dict()
+
+  kgrid = np.linspace(0, n + 1, 20)
+  for pPct in [55, 65, 75, 85, 95]:
+    p = pPct / 100
+    # this is the actual confidence of all `n` questions
+    # (Per Galef's book, these are the only inputs acceptable)
+    if p not in lookup_npq[n]:
+      lookup_npq[n][pPct] = dict()
+
+    denominator = mp.quad(lambda k: mppmf(k, n, p), [0.0, n + 1])
+    cdfs = [mp.quad(lambda k: mppmf(k, n, p), [0.0, k]) / denominator for k in kgrid]
+    interp = interp1d(cdfs, kgrid)
+
+    for qPct in confIntervalsToQuantiles([90, 50, 10]):
+      q = qPct / 100
+      # these are quantiles
+      lookup_npq[n][pPct][qPct] = float(ppf(q, n, p, denominator, float(interp(q))))
+
+with open('npq.json', 'w') as fid:
+  json.dump(lookup_npq, fid)
