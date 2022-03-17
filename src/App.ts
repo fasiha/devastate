@@ -4,7 +4,6 @@ import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {lookups} from "./confintervals";
-import {lngamma} from './gamma';
 import {get, hash, Question, QuestionBlock} from './questions';
 
 /*
@@ -28,18 +27,9 @@ const me: [boolean, number][] = [
   [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]
 ];
 
-// Binomial random variable helper functions
-function lnnchoosek(x: number, y: number) { return lngamma(x + 1) - lngamma(y + 1) - lngamma(x - y + 1); }
-function binomProb(k: number, n: number, p: number) {
-  if (k < 0 || k > n || n < 0 || p < 0 || p > 1) {
-    console.error({k, n, p});
-    throw new Error('invalid binomial distribution parameters')
-  }
-  return Math.exp(lnnchoosek(n, k)) * p ** k * (1 - p) ** (n - k);
-}
-function linspace(min: number, max: number, steps: number): number[] {
-  const delta = (max - min) / (steps - 1);
-  return Array.from(Array(steps), (_, n) => min + n * delta);
+function lerp(x1: number, x2: number, y1: number, y2: number, x: number): number {
+  const mu = (x - x1) / (x2 - x1);
+  return (y1 * (1 - mu) + y2 * mu);
 }
 
 /*
@@ -93,27 +83,22 @@ function Summary({detailed}: SummaryProps) {
     if (detailed) {
       plotData.sort((a, b) => a.x - b.x);
 
-      const binoms: {x: number, y: number, prob: number}[] = [];
       const cis: {x: number, y: number, q: number}[] = [];
-      const empiricalPs = linspace(0.5, 1, 21); // this is `k/n` we want to support
       for (const {total: n, x: p} of plotData) {
         for (const [q, ci] of lookups(n, p)) {
           if (q < 40 || q > 60) { cis.push({x: p, y: ci / n * 100, q}); }
         }
-
-        const sub: typeof binoms = [];
-        for (const empP of empiricalPs) {
-          const k = empP * n;
-          const prob = binomProb(k, n, p / 100);
-          sub.push({x: p, y: empP * 100, prob});
-        }
-        // rescale
-        const max = Math.max(...sub.map(o => o.prob));
-        binoms.push(...sub.map(o => ({...o, prob: o.prob / max})));
       }
 
-      const prob = Plot.dot(binoms, {x: 'x', y: 'y', fill: 'prob', r: 'prob'});
-      const ciDots = Plot.line(cis, {x: 'x', y: 'y', z: 'q', curve: 'natural'});
+      const ciDots = Plot.line(cis, {
+        x: 'x',
+        y: 'y',
+        z: 'q',
+        stroke: 'q',
+        curve: 'natural',
+        strokeWidth: (d: typeof cis[0]) => lerp(90, 50, 1, 2, 2 * Math.abs(50 - d.q)),
+        strokeOpacity: 0.5,
+      });
       const ciText = Plot.text(cis, Plot.selectLast({
         x: "x",
         y: "y",
@@ -126,7 +111,7 @@ function Summary({detailed}: SummaryProps) {
         textAnchor: "start",
         dx: 10
       }));
-      const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
+      const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', fill: 'red', r: 10});
       const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
       document.querySelector('#plot')?.replaceChildren(Plot.plot({
         marks: [dot, ciDots, ciText, link],
@@ -135,7 +120,7 @@ function Summary({detailed}: SummaryProps) {
         y: {label: '… you\'re right ░░% of the time '},
         style: {background: "black", color: "white"},
         r: {type: "linear", domain: [0, 1], range: [0, 10]},
-        color: {type: 'linear', range: ["black", "white"], interpolate: "rgb"},
+        color: {type: 'linear', domain: [0, 50, 100], range: ["orange", "white", "orange"]},
       }));
     } else if (showState) {
       document.querySelector('#plot')?.scrollIntoView({behavior: 'smooth'});
