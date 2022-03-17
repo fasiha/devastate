@@ -95,7 +95,7 @@ function Summary({detailed}: SummaryProps) {
         y: 'y',
         z: 'q',
         stroke: 'q',
-        curve: 'natural',
+        curve: 'basis',
         strokeWidth: (d: typeof cis[0]) => lerp(90, 50, 1, 2, 2 * Math.abs(50 - d.q)),
         strokeOpacity: 0.5,
       });

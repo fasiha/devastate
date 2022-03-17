@@ -1,6 +1,9 @@
-# semi-related but different distribution? https://rdrr.io/cran/cbinom/man/cbinom.html
-
-# You'll need scipy and numpy to run this
+"""
+Set up a Python virtual environment (conda, venv, etc.), and run the following:
+```
+python -m pip install scipy numpy mpmath tqdm
+```
+"""
 from fractions import Fraction
 from scipy.interpolate import interp1d
 import mpmath as mp
@@ -36,7 +39,7 @@ def pmfUnnormalized(k, n, p):
 
 @cache
 def pmfNormalizingDenominator(n, p):
-  ""
+  "Normalizes the continuous binomial PMF given `n` and `p`"
   return mp.quad(lambda k: pmfUnnormalized(k, n, p), [0.0, n + 1])
 
 
@@ -75,46 +78,47 @@ def confIntervalsToQuantiles(qs: list[int]) -> list[float | int]:
   return ret
 
 
-lookup_npq = dict()
+if __name__ == '__main__':
+  lookup_npq = dict()
 
-# try to rehydrate this object from disk
-try:
+  # try to rehydrate this object from disk
+  try:
 
-  def object_hook(d):
-    return {maybeFloatInt(float(key)): d[key] for key in d}
+    def object_hook(d):
+      return {maybeFloatInt(float(key)): d[key] for key in d}
 
-  with open(JSON_FILE, 'r') as fid:
-    lookup_npq = json.load(fid, object_hook=object_hook)
-except FileNotFoundError:
-  pass
+    with open(JSON_FILE, 'r') as fid:
+      lookup_npq = json.load(fid, object_hook=object_hook)
+  except FileNotFoundError:
+    pass
 
-# Run!
-qs = confIntervalsToQuantiles([90, 50, 10])
-for n in tqdm.tqdm(range(1, 41)):
-  # this is the number of questions in a given confidence
-  if n not in lookup_npq:
-    lookup_npq[n] = dict()
+  # Run!
+  qs = confIntervalsToQuantiles([90, 50, 10])
+  for n in tqdm.tqdm(range(1, 41)):
+    # this is the number of questions in a given confidence
+    if n not in lookup_npq:
+      lookup_npq[n] = dict()
 
-  kgrid = np.linspace(0, n + 1, 20)
-  for pPct in [55, 65, 75, 85, 95]:
-    p = pPct / 100
-    # this is the actual confidence of all `n` questions
-    # (Per Galef's book, these are the only inputs acceptable)
-    if pPct not in lookup_npq[n]:
-      lookup_npq[n][pPct] = dict()
-    if all(q in lookup_npq[n][pPct] for q in qs):
-      continue
+    kgrid = np.linspace(0, n + 1, 20)
+    for pPct in [55, 65, 75, 85, 95]:
+      p = pPct / 100
+      # this is the actual confidence of all `n` questions
+      # (Per Galef's book, these are the only inputs acceptable)
+      if pPct not in lookup_npq[n]:
+        lookup_npq[n][pPct] = dict()
+      if all(q in lookup_npq[n][pPct] for q in qs):
+        continue
 
-    denominator = pmfNormalizingDenominator(n, p)
-    cdfs = [mp.quad(lambda k: pmfUnnormalized(k, n, p), [0.0, k]) / denominator for k in kgrid]
-    interp = interp1d(cdfs, kgrid)
+      denominator = pmfNormalizingDenominator(n, p)
+      cdfs = [mp.quad(lambda k: pmfUnnormalized(k, n, p), [0.0, k]) / denominator for k in kgrid]
+      interp = interp1d(cdfs, kgrid)
 
-    for qPct in qs:
-      q = qPct / 100
-      # these are quantiles
-      if qPct not in lookup_npq[n][pPct]:
-        lookup_npq[n][pPct][qPct] = float(ppf(q, n, p, float(interp(q))))
+      for qPct in qs:
+        q = qPct / 100
+        # these are quantiles
+        if qPct not in lookup_npq[n][pPct]:
+          lookup_npq[n][pPct][qPct] = float(ppf(q, n, p, float(interp(q))))
 
-# persist to disk
-with open(JSON_FILE, 'w') as fid:
-  json.dump(lookup_npq, fid)
+  # persist to disk
+  with open(JSON_FILE, 'w') as fid:
+    json.dump(lookup_npq, fid)

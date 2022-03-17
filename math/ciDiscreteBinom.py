@@ -1,3 +1,7 @@
+"""
+This is the pure-discrete binominal confidence intervals
+"""
+
 import json
 from scipy.stats import binom as binomrv
 import numpy as np
