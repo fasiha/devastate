@@ -112,7 +112,7 @@ function Summary({detailed}: SummaryProps) {
         dx: 10
       }));
       const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', fill: 'red', r: 10});
-      const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
+      const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, stroke: 'orange', strokeOpacity: 0.5});
       document.querySelector('#plot')?.replaceChildren(Plot.plot({
         marks: [dot, ciDots, ciText, link],
         grid: true,
@@ -120,7 +120,7 @@ function Summary({detailed}: SummaryProps) {
         y: {label: '… you\'re right ░░% of the time '},
         style: {background: "black", color: "white"},
         r: {type: "linear", domain: [0, 1], range: [0, 10]},
-        color: {type: 'linear', domain: [0, 50, 100], range: ["orange", "white", "orange"]},
+        color: {type: 'linear', domain: [0, 50, 100], range: ["white", "orange", "white"]},
       }));
     } else if (showState) {
       document.querySelector('#plot')?.scrollIntoView({behavior: 'smooth'});
