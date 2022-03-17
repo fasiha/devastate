@@ -3,6 +3,7 @@ import {configureStore, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import {lookups} from "./confintervals";
 import {lngamma} from './gamma';
 import {get, hash, Question, QuestionBlock} from './questions';
 
@@ -90,9 +91,16 @@ function Summary({detailed}: SummaryProps) {
 
   useEffect(() => {
     if (detailed) {
+      plotData.sort((a, b) => a.x - b.x);
+
       const binoms: {x: number, y: number, prob: number}[] = [];
+      const cis: {x: number, y: number, q: number}[] = [];
       const empiricalPs = linspace(0.5, 1, 21); // this is `k/n` we want to support
       for (const {total: n, x: p} of plotData) {
+        for (const [q, ci] of lookups(n, p)) {
+          if (q < 40 || q > 60) { cis.push({x: p, y: ci / n * 100, q}); }
+        }
+
         const sub: typeof binoms = [];
         for (const empP of empiricalPs) {
           const k = empP * n;
@@ -105,10 +113,23 @@ function Summary({detailed}: SummaryProps) {
       }
 
       const prob = Plot.dot(binoms, {x: 'x', y: 'y', fill: 'prob', r: 'prob'});
+      const ciDots = Plot.line(cis, {x: 'x', y: 'y', z: 'q', curve: 'natural'});
+      const ciText = Plot.text(cis, Plot.selectLast({
+        x: "x",
+        y: "y",
+        z: "q",
+        text: (d: typeof cis[0]) => {
+          const q = d.q;
+          const ci = 2 * Math.abs(50 - q);
+          return `${q > 50 ? '↓' : '↑'}${ci}% CI`;
+        },
+        textAnchor: "start",
+        dx: 10
+      }));
       const dot = Plot.dot(plotData, {x: 'x', y: 'y', stroke: 'red', r: 10});
       const link = Plot.link([1], {x1: 50, y1: 50, x2: 100, y2: 100, strokeOpacity: 0.2});
       document.querySelector('#plot')?.replaceChildren(Plot.plot({
-        marks: [prob, dot, link],
+        marks: [dot, ciDots, ciText, link],
         grid: true,
         x: {label: 'When you feel ░░% sure of your answer…', ticks: CONFIDENCES},
         y: {label: '… you\'re right ░░% of the time '},
