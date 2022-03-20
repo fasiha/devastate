@@ -10,7 +10,7 @@ import {get, hash, Question, QuestionBlock} from './questions';
 Business logic types and data
 */
 type Score = {
-  results: {[k: string]: {result: boolean|undefined, confidence: number|undefined}},
+  results: {[k: string]: {result: boolean|undefined, confidence: number|undefined, choice: number|undefined}},
   show: boolean
 };
 const initialScore: Score = {
@@ -19,13 +19,47 @@ const initialScore: Score = {
 };
 const CONFIDENCES = [55, 65, 75, 85, 95];
 // These are my results from when I read the book :D
-const me: [boolean, number][] = [
-  [true, 95], [false, 55], [true, 65],  [true, 85], [true, 65], [true, 85], [false, 55], [true, 65],
-  [true, 55], [false, 85], [true, 95],  [true, 75], [true, 55], [true, 95], [true, 85],  [true, 95],
-  [true, 95], [true, 55],  [false, 55], [true, 75], [true, 55], [true, 85], [true, 65],  [true, 65],
-  [true, 85], [true, 55],  [true, 55],  [true, 55], [true, 95], [true, 55], [true, 95],  [true, 75],
-  [true, 65], [true, 55],  [true, 95],  [true, 85], [true, 85], [true, 95], [true, 95],  [true, 75]
+const me: [boolean, number, number][] = [
+  [true, 95, 1], [false, 55, 0], [true, 65, 1],  [true, 85, 0], [true, 65, 1],  [true, 85, 1], [false, 55, 0],
+  [true, 65, 0], [true, 55, 1],  [false, 85, 0], [true, 95, 1], [true, 75, 1],  [true, 55, 0], [true, 95, 0],
+  [true, 85, 1], [true, 95, 1],  [true, 95, 0],  [true, 55, 1], [false, 55, 1], [true, 75, 0], [true, 55, 0],
+  [true, 85, 0], [true, 65, 0],  [true, 65, 0],  [true, 85, 0], [true, 55, 0],  [true, 55, 1], [true, 55, 0],
+  [true, 95, 0], [true, 55, 1],  [true, 95, 1],  [true, 75, 0], [true, 65, 1],  [true, 55, 0], [true, 95, 1],
+  [true, 85, 1], [true, 85, 0],  [true, 95, 1],  [true, 95, 0], [true, 75, 0]
 ];
+
+const confidenceToIdx = new Map(CONFIDENCES.map((c, i) => [c, i]))
+function serializeResults(results: Score['results']): string {
+  console.log('running serialize')
+  let suggestion =
+      'v1-' +
+      Object.values(results).map(o => `${o.choice ?? 'x'}${confidenceToIdx.get(o.confidence ?? -1) ?? 'x'}`).join('');
+  // map undefined (unanswered questions/confidences) to 'x' above.
+  // Then trim excess 'x's
+  suggestion = suggestion.replace(/x+$/, '')
+  if (suggestion.length <= 3) { return ''; }
+  return suggestion;
+}
+function deserializeResults(s: string, qs: Question[]): Score['results']|undefined {
+  if (s.startsWith('v1-')) {
+    const ret: Score['results'] = {};
+    // throw away leading version indicator and split into two-char tuples
+    const pieces = s.slice(3).match(/../g);
+    if (!pieces) { return undefined; }
+    for (const [i, piece] of pieces.entries()) {
+      const question = qs[i];
+      if (!question) { break; } // all done. Garbage in serialized input
+      const [choice, conf] = piece.split('').map(o => parseInt(o));
+      ret[hash(question)] = {
+        choice: choice || undefined,
+        confidence: conf || undefined,
+        result: choice === question.answer
+      };
+    }
+    return ret;
+  }
+  return undefined;
+}
 
 function lerp(x1: number, x2: number, y1: number, y2: number, x: number): number {
   const mu = (x - x1) / (x2 - x1);
@@ -45,7 +79,7 @@ const slice = createSlice({
     fill: state => ({
       ...state,
       results: Object.fromEntries(
-          Object.keys(state.results).map((key, i) => [key, {result: me[i][0], confidence: me[i][1]}]))
+          Object.keys(state.results).map((key, i) => [key, {result: me[i][0], confidence: me[i][1], choice: me[i][2]}]))
     }),
   }
 });
@@ -63,6 +97,7 @@ const almostDone = (s: RootState) => {
   const {total, answered} = totalAnswered(s);
   return total - answered <= 3;
 };
+const serializedHash = (s: RootState) => serializeResults(s.score.results);
 
 /*
 React components!
@@ -173,9 +208,7 @@ function Q({question}: QProps) {
   const showState = useSelector(show);
   const dispatch = useAppDispatch();
 
-  const choice: number|undefined = resultState.result === undefined ? undefined
-                                   : resultState.result             ? question.answer
-                                                                    : Number(!question.answer);
+  const choice = resultState.choice;
 
   if (showState && choice !== undefined) {
     const options = question.options.join(' or ');
@@ -199,7 +232,7 @@ function Q({question}: QProps) {
            checked: choice === num,
            onChange: e => {
              if (e.target.value) {
-               dispatch(actions.append({[unique]: {...resultState, result: num === question.answer}}));
+               dispatch(actions.append({[unique]: {...resultState, choice: num, result: num === question.answer}}));
              }
            }
          }),
@@ -250,10 +283,15 @@ function App() {
   useEffect(() => {
     get().then(list => {
       setQuestionBlocks(list);
-      dispatch(actions.append(Object.fromEntries(
-          list.flatMap(l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined}])))))
+      dispatch(actions.append(Object.fromEntries(list.flatMap(
+          l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined, choice: undefined}])))))
     });
   }, []);
+  const serialized = useSelector(serializedHash);
+  useEffect(() => {
+    if (serialized) { window.location.hash = serialized; }
+  }, [serialized]);
+
   if (questionBlocks) {
     return ce(
         'div',
