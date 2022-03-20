@@ -37,7 +37,6 @@ function serializeResults(results: Score['results']): string {
   // map undefined (unanswered questions/confidences) to 'x' above.
   // Then trim excess 'x's
   suggestion = suggestion.replace(/x+$/, '')
-  if (suggestion.length <= 3) { return ''; }
   return suggestion;
 }
 function deserializeResults(s: string, qs: Question[]): Score['results']|undefined {
@@ -49,13 +48,14 @@ function deserializeResults(s: string, qs: Question[]): Score['results']|undefin
     for (const [i, piece] of pieces.entries()) {
       const question = qs[i];
       if (!question) { break; } // all done. Garbage in serialized input
-      const [choice, conf] = piece.split('').map(o => parseInt(o));
+      const [choice, confIdx] = piece.split('').map(o => parseInt(o));
       ret[hash(question)] = {
-        choice: choice || undefined,
-        confidence: conf || undefined,
+        choice: isNaN(choice) ? undefined : choice,
+        confidence: isNaN(confIdx) ? undefined : CONFIDENCES[confIdx],
         result: choice === question.answer
       };
     }
+    console.log('returning', ret)
     return ret;
   }
   return undefined;
@@ -80,6 +80,11 @@ const slice = createSlice({
       ...state,
       results: Object.fromEntries(
           Object.keys(state.results).map((key, i) => [key, {result: me[i][0], confidence: me[i][1], choice: me[i][2]}]))
+    }),
+    clear: state => ({
+      ...state,
+      results: Object.fromEntries(
+          Object.keys(state.results).map(k => [k, {result: undefined, confidence: undefined, choice: undefined}]))
     }),
   }
 });
@@ -283,13 +288,16 @@ function App() {
   useEffect(() => {
     get().then(list => {
       setQuestionBlocks(list);
-      dispatch(actions.append(Object.fromEntries(list.flatMap(
-          l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined, choice: undefined}])))))
+      const empty = Object.fromEntries(list.flatMap(
+          l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined, choice: undefined}])));
+      const deserialized = deserializeResults(window.location.hash.slice(1), list.flatMap(o => o.questions)) || {};
+      dispatch(actions.append({...empty, ...deserialized}))
     });
   }, []);
   const serialized = useSelector(serializedHash);
   useEffect(() => {
-    if (serialized) { window.location.hash = serialized; }
+    // don't update the hash too soon!
+    if (questionBlocks) { window.location.hash = serialized; }
   }, [serialized]);
 
   if (questionBlocks) {
