@@ -4,17 +4,17 @@ import {createElement as ce, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {lookups} from "./confintervals";
-import {get, hash, Question, QuestionBlock} from './questions';
+import {get, Question, QuestionBlock} from './questions';
 
 /*
 Business logic types and data
 */
 type Score = {
-  results: {[k: string]: {result: boolean|undefined, confidence: number|undefined, choice: number|undefined}},
+  results: {result: boolean|undefined, confidence: number|undefined, choice: number|undefined}[],
   show: boolean
 };
 const initialScore: Score = {
-  results: {},
+  results: [],
   show: false
 };
 const CONFIDENCES = [55, 65, 75, 85, 95];
@@ -30,40 +30,45 @@ const me: [boolean, number, number][] = [
 
 const confidenceToIdx = new Map(CONFIDENCES.map((c, i) => [c, i]))
 function serializeResults(results: Score['results']): string {
-  console.log('running serialize')
   let suggestion =
-      'v1-' +
-      Object.values(results).map(o => `${o.choice ?? 'x'}${confidenceToIdx.get(o.confidence ?? -1) ?? 'x'}`).join('');
+      'v1-' + results.map(o => `${o.choice ?? 'x'}${confidenceToIdx.get(o.confidence ?? -1) ?? 'x'}`).join('');
   // map undefined (unanswered questions/confidences) to 'x' above.
   // Then trim excess 'x's
   suggestion = suggestion.replace(/x+$/, '')
   return suggestion;
 }
-function deserializeResults(s: string, qs: Question[]): Score['results']|undefined {
+function deserializeResults(s: string, qs: Question[]): Score['results'] {
+  const ret: Score['results'] = [];
+  let pieces: RegExpMatchArray = [];
   if (s.startsWith('v1-')) {
-    const ret: Score['results'] = {};
     // throw away leading version indicator and split into two-char tuples
-    const pieces = s.slice(3).match(/../g);
-    if (!pieces) { return undefined; }
-    for (const [i, piece] of pieces.entries()) {
-      const question = qs[i];
-      if (!question) { break; } // all done. Garbage in serialized input
+    pieces = s.slice(3).match(/(.{2}|.{1})/g) || [];
+  }
+  for (const [i, q] of qs.entries()) {
+    const piece = pieces[i];
+    if (piece) {
       const [choice, confIdx] = piece.split('').map(o => parseInt(o));
-      ret[hash(question)] = {
+      ret.push({
         choice: isNaN(choice) ? undefined : choice,
         confidence: isNaN(confIdx) ? undefined : CONFIDENCES[confIdx],
-        result: choice === question.answer
-      };
+        result: isNaN(choice) ? undefined : choice === q.answer
+      });
+    } else {
+      ret.push({choice: undefined, confidence: undefined, result: undefined});
     }
-    console.log('returning', ret)
-    return ret;
   }
-  return undefined;
+  return ret;
 }
 
 function lerp(x1: number, x2: number, y1: number, y2: number, x: number): number {
   const mu = (x - x1) / (x2 - x1);
   return (y1 * (1 - mu) + y2 * mu);
+}
+
+function pureArrayReplaceIdx<T>(v: T[], newElement: T, idx: number): T[] {
+  const ret = v.slice();
+  ret[idx] = newElement;
+  return ret;
 }
 
 /*
@@ -73,19 +78,14 @@ const slice = createSlice({
   name: 'score',
   initialState: initialScore,
   reducers: {
-    append: (state, action: PayloadAction<Score['results']>) =>
-        ({...state, results: {...state.results, ...action.payload}}),
+    append: function(state, action: PayloadAction<[number, Score['results'][0]]>): Score {
+      return ({...state, results: pureArrayReplaceIdx(state.results, action.payload[1], action.payload[0])})
+    },
+    set: function(state, action: PayloadAction<Score['results']>):
+        Score { return ({...state, results: action.payload}) },
+
     done: state => ({...state, show: true}),
-    fill: state => ({
-      ...state,
-      results: Object.fromEntries(
-          Object.keys(state.results).map((key, i) => [key, {result: me[i][0], confidence: me[i][1], choice: me[i][2]}]))
-    }),
-    clear: state => ({
-      ...state,
-      results: Object.fromEntries(
-          Object.keys(state.results).map(k => [k, {result: undefined, confidence: undefined, choice: undefined}]))
-    }),
+    fill: state => ({...state, results: ((me).map((m) => ({result: m[0], confidence: m[1], choice: m[2]})))}),
   }
 });
 export const store = configureStore({reducer: {score: slice.reducer}});
@@ -208,8 +208,8 @@ interface QProps {
 }
 function Q({question}: QProps) {
   // `unique` is a "hash" of the question, so even if somehow we rerender, it'll be the same
-  const unique = hash(question);
-  const resultState = useSelector((s: RootState) => s.score.results[unique]) || {};
+  const unique = 'q' + question.idx;
+  const resultState = useSelector((s: RootState) => s.score.results[question.idx - 1]) || {};
   const showState = useSelector(show);
   const dispatch = useAppDispatch();
 
@@ -237,7 +237,8 @@ function Q({question}: QProps) {
            checked: choice === num,
            onChange: e => {
              if (e.target.value) {
-               dispatch(actions.append({[unique]: {...resultState, choice: num, result: num === question.answer}}));
+               dispatch(
+                   actions.append([question.idx - 1, {...resultState, choice: num, result: num === question.answer}]));
              }
            }
          }),
@@ -258,7 +259,9 @@ function Q({question}: QProps) {
            name: radioGroup,
            checked: resultState.confidence === thisConf,
            onChange: e => {
-             if (e.target.value) { dispatch(actions.append({[unique]: {...resultState, confidence: thisConf}})); }
+             if (e.target.value) {
+               dispatch(actions.append([question.idx - 1, {...resultState, confidence: thisConf}]));
+             }
            }
          }),
          ' ' + content),
@@ -288,10 +291,14 @@ function App() {
   useEffect(() => {
     get().then(list => {
       setQuestionBlocks(list);
-      const empty = Object.fromEntries(list.flatMap(
-          l => l.questions.map(q => [hash(q), {result: undefined, confidence: undefined, choice: undefined}])));
-      const deserialized = deserializeResults(window.location.hash.slice(1), list.flatMap(o => o.questions)) || {};
-      dispatch(actions.append({...empty, ...deserialized}))
+      const deserialized = deserializeResults(window.location.hash.slice(1), list.flatMap(o => o.questions));
+      if (deserialized) {
+        dispatch(actions.set(deserialized));
+      } else {
+        const empty =
+            list.flatMap(l => l.questions.map(q => ({result: undefined, confidence: undefined, choice: undefined})));
+        dispatch(actions.set(empty));
+      }
     });
   }, []);
   const serialized = useSelector(serializedHash);
