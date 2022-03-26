@@ -20,9 +20,9 @@ const initialScore: Score = {
 const CONFIDENCES = [55, 65, 75, 85, 95];
 // These are my results from when I read the book :D
 const me: [boolean, number, number][] = [
-  [true, 95, 1], [false, 55, 0], [true, 65, 1],  [true, 85, 0], [true, 65, 1],  [true, 85, 1], [false, 55, 0],
-  [true, 65, 0], [true, 55, 1],  [false, 85, 0], [true, 95, 1], [true, 75, 1],  [true, 55, 0], [true, 95, 0],
-  [true, 85, 1], [true, 95, 1],  [true, 95, 0],  [true, 55, 1], [false, 55, 1], [true, 75, 0], [true, 55, 0],
+  [true, 95, 1], [false, 55, 1], [true, 65, 1],  [true, 85, 0], [true, 65, 1],  [true, 85, 1], [false, 55, 1],
+  [true, 65, 0], [true, 55, 1],  [false, 85, 1], [true, 95, 1], [true, 75, 1],  [true, 55, 0], [true, 95, 0],
+  [true, 85, 1], [true, 95, 1],  [true, 95, 0],  [true, 55, 1], [false, 55, 0], [true, 75, 0], [true, 55, 0],
   [true, 85, 0], [true, 65, 0],  [true, 65, 0],  [true, 85, 0], [true, 55, 0],  [true, 55, 1], [true, 55, 0],
   [true, 95, 0], [true, 55, 1],  [true, 95, 1],  [true, 75, 0], [true, 65, 1],  [true, 55, 0], [true, 95, 1],
   [true, 85, 1], [true, 85, 0],  [true, 95, 1],  [true, 95, 0], [true, 75, 0]
