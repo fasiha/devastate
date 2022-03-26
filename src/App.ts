@@ -198,7 +198,15 @@ function Summary({detailed}: SummaryProps) {
   return ce(
       'div',
       {},
-      ce('p', {}, 'Results!'),
+      ce('p', {}, 'Results! ',
+         ce('button', {
+           onClick: () => {
+             try {
+               navigator.clipboard.writeText(window.location.href)
+             } catch { alert('Please copy the URL from the address bar!') }
+           }
+         },
+            'Copy URL')),
       ce('ul', {}, ...bullets.map(text => ce('li', {}, text))),
   );
 }
