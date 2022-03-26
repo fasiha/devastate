@@ -6,6 +6,8 @@ Check out my predicted-vs-actual plot and tell me how to be more risk-on:
 
 ![My results](./me.png)
 
+Direct link to [my results](https://fasiha.github.io/devastate/#v1-14001103111300011003141200041314041010020003010103001000041014021100141303140402) but:
+
 - 55% ➜ 75.0% = 9/12: [9 13 18 21 26 27 28 30 34] right vs [2 7 19] wrong
 - 65% ➜ 100.0% = 6/6: [3 5 8 23 24 33] right vs [] wrong
 - 75% ➜ 100.0% = 4/4: [12 20 32 40] right vs [] wrong
